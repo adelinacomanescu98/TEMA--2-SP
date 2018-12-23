@@ -1,0 +1,51 @@
+
+%semnal triunghiular simetric monoalernant
+%durata D=4 secunde => T=16 s 
+T=16;
+f=1/T;
+w=2*pi*f;
+t = 0:0.0001:4*T;
+%patru perioade din semnal
+N=50;
+C = zeros(1,2*N+1);
+% vectorul de coeficienti a fost initializat cu valori nule
+x=(sawtooth(w*t,0.5)+abs(sawtooth(w*t,0.5)))/2
+% => semnal triunghiular simetric monoredresat cu T=16 s si D=4
+% semnalul a fost obtinut dintr-un semnal triunghiular simetric ce a fost monoredresat
+for n = -N:N
+    C(n+N+1) = 1/T * integral(@(t)(1/2*sawtooth(w*t,0.5)+1/2*abs(sawtooth(w*t,0.5))).*exp(-1j*n*w*t),0,T) ;
+    %se calculeaza coeficientii
+    re = real(C(n+N+1));
+    im = imag(C(n+N+1));
+    C(n+N+1) = re+1j*im ;
+    %indexul unui vector nu poate avea valori negative de aceea indexul
+    %fiecarui element din vector este cu 51 mai mare ca indexul teoretic 
+end
+xr = 0;
+for n = -N:N
+    xr = xr + C(n+N+1)*exp(1j*n*w*t) ;
+end
+figure(1);
+hold on
+plot(t,real(xr),':g',t,imag(xr),':g');
+%am reprezentat semnalul reconstruit
+plot(t,x);%reprezentarea semnalului initial
+axis([-1 65 -0.1 1.1])
+xlabel('Timpul[s]');
+ylabel('x(t) si xr(t)');
+title('Suprapunerea semnalelor x(t) si xr(t)')
+hold off
+%prin hold on/off pot reprezenta mai multe grafice in acelasi sistem de
+%coordonate
+figure(2);
+hold on
+stem((-N:N)*w,2*abs(C));
+%functia stem este utilizata pentru reprezentarea functilor sau a seturi de date cu valori discrete
+plot((-N:N)*w,2*abs(C),'-go');
+xlabel('Pulsatia w [rad/s]');
+ylabel('Amplitudinile Ak=2|C(nw)|');
+axis([-8.1 8.1 0 0.55])
+title('Spectrul de Amplitudini');
+hold off
+%Analiza Fourier a semnalelor analogice continue ne da voie
+%sa exprimam orice semnal ce indeplineste criteriul de suficienta Diriclet intr-o suma finita de semnale elementare 
